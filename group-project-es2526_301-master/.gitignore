@@ -1,0 +1,11 @@
+*.env
+.env*
+
+*terraform*
+allure-results/
+allure-report/
+
+*terraform*
+logs/
+
+proj/backend/.allure/

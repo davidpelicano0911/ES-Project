@@ -1,0 +1,15 @@
+package com.operimus.Marketing.entities;
+
+public enum EventType {
+    FORM_SUBMITTED,
+    EMAIL_OPENED,
+    CAMPAIGN_STARTED,
+    CAMPAIGN_FINISHED,
+    USER_REGISTERED,
+    SEND_EMAIL,
+    ADD_TO_SEGMENT,
+    REMOVE_FROM_SEGMENT,
+    DELAY,
+    LANDING_PAGE_OPENED,
+    LANDING_PAGE_READABILITY_80
+}

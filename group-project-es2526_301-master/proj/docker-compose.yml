@@ -1,0 +1,149 @@
+services:
+  # database is now managed by Terraform
+  # Uncomment below if you want to use Docker Compose instead
+  # database:
+  #   image: postgres:14
+  #   container_name: operimus-postgres
+  #   restart: unless-stopped
+  #   environment:
+  #     - POSTGRES_USER=${POSTGRES_USER}
+  #     - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+  #     - POSTGRES_DB=${POSTGRES_DB}
+  #   ports:
+  #     - "${PG_LOCAL_PORT}:${PG_DOCKER_PORT}"
+  #   volumes:
+  #     - postgres_data:/var/lib/postgresql/data
+  #   networks:
+  #     - app-network
+  #   healthcheck:
+  #     test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+  #     interval: 10s
+  #     timeout: 5s
+  #     retries: 5
+  #     start_period: 30s
+
+  keycloak:
+    image: ${KEYCLOAK_IMAGE}
+    container_name: keycloak
+    command:
+      - start-dev
+      - --import-realm
+    environment:
+      - KEYCLOAK_ADMIN=${KEYCLOAK_ADMIN}
+      - KEYCLOAK_ADMIN_PASSWORD=${KEYCLOAK_ADMIN_PASSWORD}
+      - KC_HTTP_ENABLED=true
+      - KC_HTTPS_ENABLED=false
+      - KC_HOSTNAME_STRICT=false
+      - KC_HOSTNAME_STRICT_HTTPS=false
+      - KC_HOSTNAME_URL=${KC_HOSTNAME_URL}
+      - KC_PROXY=edge
+      - KC_HEALTH_ENABLED=true
+      - KC_METRICS_ENABLED=true
+      - KC_LOG_LEVEL=info
+    ports:
+      - "${KEYCLOAK_LOCAL_PORT}:${KEYCLOAK_DOCKER_PORT}"
+    volumes:
+      - ${KEYCLOAK_IMPORT_PATH}:/opt/keycloak/data/import
+    networks:
+      - app-network
+
+  keycloak-healthcheck:
+    image: busybox:latest
+    container_name: keycloak-healthcheck
+    depends_on:
+      - keycloak
+    networks:
+      - app-network
+    healthcheck:
+      test: ["CMD-SHELL", "wget --spider -q http://keycloak:${KEYCLOAK_DOCKER_PORT}/health/ready || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 10
+      start_period: 120s
+    command: ["sh", "-c", "sleep 90; while true; do wget --spider -q http://keycloak:${KEYCLOAK_DOCKER_PORT}/health/ready || true; sleep 30; done"]
+
+  otel-collector:
+      image: otel/opentelemetry-collector-contrib:0.82.0
+      container_name: otel-collector
+      restart: always
+      environment:
+        - OTEL_EXPORTER_OTLP_ENDPOINT=${OTEL_EXPORTER_OTLP_ENDPOINT}
+        - OTEL_EXPORTER_OTLP_HEADERS=${OTEL_EXPORTER_OTLP_HEADERS}
+        - MACHINE_URL=${MACHINE_URL}
+      ports:
+        - "4317:4317"
+        - "4318:4318"
+      command: ["--config=/etc/otel-collector-config.yaml"] 
+      volumes:
+        - ./otel-collector-config.yaml:/etc/otel-collector-config.yaml
+
+  # backend and frontend are now managed by Terraform
+  # Comment out or remove these services when using Terraform
+  # Uncomment them if you want to use pure Docker Compose instead
+  
+  # backend:
+  #   build:
+  #     context: ./backend
+  #     dockerfile: Dockerfile
+  #   env_file:
+  #     - .env
+  #   restart: on-failure
+  #   ports:
+  #     - "${BACKEND_LOCAL_PORT}:${BACKEND_DOCKER_PORT}"
+  #   environment:
+  #     - SPRING_PROFILES_ACTIVE=${SPRING_PROFILES_ACTIVE}
+  #     - SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_ISSUER_URI=${SPRING_SECURITY_ISSUER_URI}
+  #     - SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_JWK_SET_URI=${SPRING_SECURITY_JWK_URI}
+  #     # Mailjet credentials forwarded from .env for Spring properties
+  #     - MAILJET_API_USERNAME=${MAILJET_API_USERNAME}
+  #     - MAILJET_API_PASSWORD=${MAILJET_API_PASSWORD}
+  #     - OTEL_EXPORTER_OTLP_ENDPOINT=${OTEL_EXPORTER_OTLP_ENDPOINT}
+  #     - OTEL_EXPORTER_OTLP_PROTOCOL=http/protobuf
+  #     - OTEL_EXPORTER_OTLP_HEADERS=Authorization=ApiKey ${OTEL_EXPORTER_OTLP_HEADERS}
+  #     - OTEL_SERVICE_NAME=Operimus
+  #     - OTEL_RESOURCE_ATTRIBUTES=service.version=1.0.0,deployment.environment=prod
+  #     - OTEL_METRICS_EXPORTER=otlp
+  #     - OTEL_LOGS_EXPORTER=otlp
+  #   depends_on:
+  #     - keycloak
+  #   volumes:
+  #     - ./backend/logs:/var/log/marketing
+  #   networks:
+  #     - app-network
+  #   healthcheck: 
+  #     test: wget --no-verbose --tries=1 --spider http://localhost:${BACKEND_DOCKER_PORT}/actuator/health || exit 1 
+  #     interval: 1m30s 
+  #     timeout: 10s 
+  #     retries: 3 
+  #     start_period: 1m
+
+  # frontend:
+  #   build:
+  #     context: ./frontend
+  #     dockerfile: Dockerfile
+  #   restart: on-failure
+  #   ports:
+  #     - "${FRONTEND_LOCAL_PORT}:${FRONTEND_DOCKER_PORT}"
+  #   depends_on:
+  #     - backend
+  #   environment:
+  #     - VITE_BACKEND_HOST=${VITE_BACKEND_HOST}
+  #     - VITE_BACKEND_PORT=${VITE_BACKEND_PORT}
+  #     - VITE_KEYCLOAK_URL=${VITE_KEYCLOAK_URL}
+  #     - VITE_FLAGSMITH_ENV_ID=${VITE_FLAGSMITH_ENV_ID}
+  #     - VITE_API_VERSION=${VITE_API_VERSION}
+  #   networks:
+  #     - app-network
+  #   healthcheck:
+  #     test: ["CMD-SHELL", "wget --no-verbose --tries=1 --spider http://localhost:${FRONTEND_DOCKER_PORT} || exit 1"]
+  #     interval: 30s
+  #     timeout: 10s
+  #     retries: 5
+  #     start_period: 1m
+
+networks:
+  app-network:
+    driver: bridge
+
+volumes:
+  postgres_data:

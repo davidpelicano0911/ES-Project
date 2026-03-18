@@ -1,0 +1,13 @@
+@import "tailwindcss";
+@plugin "daisyui";
+
+/* Oculta completamente o aviso de licença do SurveyJS */
+.svc-creator__banner,
+.svc-creator__non-commercial-text {
+  display: none !important;
+  visibility: hidden !important;
+  height: 0 !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  overflow: hidden !important;
+}

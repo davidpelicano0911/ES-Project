@@ -1,0 +1,36 @@
+receivers:
+  otlp:
+    protocols:
+      http:
+        cors:
+          allowed_origins:
+            - http://localhost:3000
+            - http://127.0.0.1:3000
+            - http://192.168.160.11:3000
+            - http://${MACHINE_URL}:3000
+          allowed_headers:
+            - Content-Type
+            - X-Tenant-ID
+            - Authorization
+            - Traceparent
+            - Baggage
+      grpc:
+
+exporters:
+  logging:
+    verbosity: detailed
+
+  otlp/elastic:
+    endpoint: "${OTEL_EXPORTER_OTLP_ENDPOINT}:443"
+    headers:
+      Authorization: "ApiKey ${OTEL_EXPORTER_OTLP_HEADERS}"
+    tls:
+      insecure_skip_verify: false
+
+service:
+  pipelines:
+    traces:
+      receivers: [otlp]
+      exporters:
+        - logging
+        - otlp/elastic

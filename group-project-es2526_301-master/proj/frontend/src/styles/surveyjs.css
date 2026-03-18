@@ -1,0 +1,12 @@
+@import "survey-core/survey-core.css";
+
+:root {
+  --sjs-primary-backcolor: #2563eb;
+  --sjs-primary-backcolor-dark: #7c3aed;
+  --sjs-primary-forecolor: #ffffff;
+  --sjs-secondary-backcolor: #f9fafb;
+}
+
+.svc-creator-license-banner {
+  display: none !important;
+}

@@ -1,0 +1,101 @@
+{
+  "id": "marketing-realm",
+  "realm": "marketing-realm",
+  "enabled": true,
+
+  "registrationAllowed": true,
+  "resetPasswordAllowed": true,
+  "verifyEmail": false,
+  "loginWithEmailAllowed": true,
+  "duplicateEmailsAllowed": false,
+  "registrationEmailAsUsername": false,
+
+  "roles": {
+    "realm": [
+      { "name": "MARKETING_MANAGER" },
+      { "name": "CONTENT_MARKETER" },
+      { "name": "MARKETING_ANALYST" },
+      { "name": "SALES_REPRESENTATIVE" }
+    ]
+  },
+
+  "clients": [
+    {
+      "clientId": "marketing-backend",
+      "enabled": true,
+      "clientAuthenticatorType": "client-secret",
+      "secret": "my-secret",
+      "protocol": "openid-connect",
+      "publicClient": false,
+      "directAccessGrantsEnabled": true,
+      "redirectUris": [
+        "http://localhost:8080/swagger-ui/oauth2-redirect.html",
+        "http://127.0.0.1:8080/swagger-ui/oauth2-redirect.html",
+        "http://localhost/swagger-ui/oauth2-redirect.html",
+        "https://localhost/swagger-ui/oauth2-redirect.html"
+      ],
+      "serviceAccountsEnabled": true
+    },
+    {
+      "clientId": "marketing-frontend",
+      "enabled": true,
+      "protocol": "openid-connect",
+      "publicClient": true,
+      "redirectUris": [
+        "*"
+      ],
+      "webOrigins": ["*"]
+    }
+  ],
+
+  "users": [
+    {
+      "username": "joao",
+      "enabled": true,
+      "emailVerified": true,
+      "email": "joao@operimus.com",
+      "firstName": "João",
+      "lastName": "Domingues",
+      "credentials": [
+        { "type": "password", "value": "12345678", "temporary": false }
+      ],
+      "realmRoles": ["MARKETING_MANAGER"]
+    },
+    {
+      "username": "rafaela",
+      "enabled": true,
+      "emailVerified": true,
+      "email": "rafaela@operimus.com",
+      "firstName": "Rafaela",
+      "lastName": "Silva",
+      "credentials": [
+        { "type": "password", "value": "12345678", "temporary": false }
+      ],
+      "realmRoles": ["CONTENT_MARKETER"]
+    },
+    {
+      "username": "miguel",
+      "enabled": true,
+      "emailVerified": true,
+      "email": "miguel@operimus.com",
+      "firstName": "Miguel",
+      "lastName": "Carvalho",
+      "credentials": [
+        { "type": "password", "value": "12345678", "temporary": false }
+      ],
+      "realmRoles": ["MARKETING_ANALYST"]
+    },
+    {
+      "username": "ines",
+      "enabled": true,
+      "emailVerified": true,
+      "email": "ines@operimus.com",
+      "firstName": "Inês",
+      "lastName": "Costa",
+      "credentials": [
+        { "type": "password", "value": "12345678", "temporary": false }
+      ],
+      "realmRoles": ["SALES_REPRESENTATIVE"]
+    }
+  ]
+}

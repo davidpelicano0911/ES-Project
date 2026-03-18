@@ -1,0 +1,61 @@
+spring:
+  autoconfigure:
+    exclude:
+      - org.springframework.boot.autoconfigure.security.oauth2.resource.servlet.OAuth2ResourceServerAutoConfiguration
+      - org.springframework.boot.autoconfigure.security.oauth2.client.OAuth2ClientAutoConfiguration
+      - org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration
+      - org.springframework.boot.autoconfigure.security.servlet.SecurityFilterAutoConfiguration
+      - org.springframework.ai.vectorstore.pgvector.autoconfigure.PgVectorStoreAutoConfiguration
+  datasource:
+    url: jdbc:h2:mem:testdb;DB_CLOSE_DELAY=-1
+    driver-class-name: org.h2.Driver
+    username: sa
+    password:
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.H2Dialect
+  h2:
+    console:
+      enabled: true
+  main:
+    allow-bean-definition-overriding: true
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: dummy
+logging:
+  level:
+    org.springframework: WARN
+
+mailjet:
+  api-username: test-username
+  api-password: test-password
+
+api:
+  version: v3
+
+# --- Spring AI / Google GenAI Configuration ---
+spring.ai.google.genai.embedding.api-key: test-api-key
+spring.ai.google.genai.embedding.project-id: 1234567890
+spring.ai.google.genai.embedding.model: text-embedding-004
+spring.ai.google.genai.chat.enabled: true
+spring.ai.google.genai.embedding.enabled: true
+spring.ai.google.genai.api-key: test-api-key
+
+# --- PGVector config ---
+spring.ai.vectorstore.pgvector.enabled: false
+spring.ai.vectorstore.pgvector.initialize-schema: true
+spring.ai.vectorstore.pgvector.table-name: documents
+spring.ai.vectorstore.pgvector.dimension: 768
+spring.ai.vectorstore.pgvector.index-type: hnsw
+
+# --- LLM Configuration ---
+llm.api.key: test-api-key
+llm.api.url: https://generativelanguage.googleapis.com
+llm.api.model: gemini-2.0-flash
+
+
